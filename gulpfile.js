@@ -50,7 +50,7 @@ gulp.task('images', function () {
 
 // Compass
 gulp.task('compass', function(){
-    return gulp.src('assets/styles/*.scss')
+    return gulp.src('./assets/scss/*.scss')
         .pipe(compass({
             css: './css',
             sass: 'assets/scss',
@@ -64,7 +64,7 @@ gulp.task('compass', function(){
 // Scan Your HTML For Assets & Optimize Them
 gulp.task('html', function () {
     return gulp.src('assets/html/**/*.html')
-        .pipe($.useref.assets({searchPath: '{.tmp,assets}'}))
+        .pipe($.useref.assets({searchPath: 'assets'}))
         // Concatenate And Minify JavaScript
         .pipe($.if('*.js', $.uglify()))
         // Concatenate And Minify Styles
