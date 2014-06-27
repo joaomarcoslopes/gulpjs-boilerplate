@@ -123,7 +123,7 @@ gulp.task('serve', function () {
 
 // Build Production Files
 gulp.task('build', function (cb) {
-    runSequence('styles', ['js', 'html', 'images'], cb);
+    runSequence('compass', ['js', 'html', 'images'], cb);
     // runSequence('compass', ['js', 'images'], cb);
 });
 
