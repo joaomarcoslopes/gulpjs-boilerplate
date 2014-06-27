@@ -1,22 +1,3 @@
-/**
- *
- *  Web Starter Kit
- *  Copyright 2014 Google Inc. All rights reserved.
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License
- *
- */
-
 'use strict';
 
 // Include Gulp & Tools We'll Use
@@ -71,12 +52,11 @@ gulp.task('images', function () {
 gulp.task('compass', function(){
     return gulp.src('assets/styles/*.scss')
         .pipe(compass({
-            css: 'css',
+            css: './css',
             sass: 'assets/scss',
             image: 'assets/images'
       	}))
-      	.pipe(concat('main.scss'))
-      	.pipe(sass({unixNewlines: true, style: 'compressed'}))
+      	.pipe($.autoprefixer('last 2 versions', 'ie 8'))
       	.pipe(gulp.dest('css'))
   	 	.pipe($.size({title: 'compass'}));
 });
@@ -97,7 +77,7 @@ gulp.task('html', function () {
         // Minify Any HTML
         .pipe($.minifyHtml())
         // Output Files
-        .pipe(gulp.dest('dist'))
+        .pipe(gulp.dest('./'))
         .pipe($.size({title: 'html'}));
 });
 
@@ -110,15 +90,14 @@ gulp.task('clean', function (cb) {
 gulp.task('serve', function () {
     browserSync.init(null, {
         server: {
-            baseDir: ['assets', '.tmp']
+            baseDir: './'
         },
         notify: false
     });
 
-    gulp.watch(['assets/**/*.html'], reload);
-    gulp.watch(['assets/styles/**/*.{css,scss}'], ['compass']);
-    gulp.watch(['.tmp/styles/**/*.css'], reload);
-    gulp.watch(['assets/scripts/**/*.js'], ['jshint']);
+    gulp.watch(['assets/html/**/*.html'], reload);
+    gulp.watch(['assets/styles/**/*.scss'], ['compass']);
+    gulp.watch(['assets/scripts/*.js'], ['js']);
     gulp.watch(['assets/images/**/*'], ['images']);
 });
 
