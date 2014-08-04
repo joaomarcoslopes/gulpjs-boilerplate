@@ -3,15 +3,12 @@
 // Include Gulp & Tools We'll Use
 var gulp = require('gulp'),
     $ = require('gulp-load-plugins')(),
-    concat = require('gulp-concat'),
-    uglify = require('gulp-uglify'),
+    minifyCSS = require('gulp-minify-css'),
     rimraf = require('rimraf'),
-    compass = require('gulp-compass'),
-    sass = require('gulp-ruby-sass'),
     runSequence = require('run-sequence'),
     browserSync = require('browser-sync'),
-    pagespeed = require('psi'),
-    reload = browserSync.reload;
+    reload = browserSync.reload,
+    pagespeed = require('psi');
 
 // Lint JavaScript
 gulp.task('js:lint', function () {
@@ -24,8 +21,8 @@ gulp.task('js:lint', function () {
 // Concat and Minify JavaScript
 gulp.task('js:minify', function () {
     return gulp.src('assets/scripts/*.js')
-        .pipe(concat('main.min.js'))
-        .pipe(uglify())
+        .pipe($.concat('main.min.js'))
+        .pipe($.uglify())
         .pipe(gulp.dest('dist/scripts'));
 })
 //Copy vendors
@@ -34,7 +31,7 @@ gulp.task('js:vendor', function () {
         .pipe(gulp.dest('dist/scripts/vendor'));
 })
 
-gulp.task('js', ['js:lint', 'js:minify', 'js:minify', 'js:vendor']);
+gulp.task('js', ['js:lint', 'js:minify', 'js:vendor']);
 
 // Optimize Images
 gulp.task('images', function () {
@@ -50,52 +47,45 @@ gulp.task('images', function () {
 
 // Compass
 gulp.task('compass', function(){
-    return gulp.src('./assets/scss/*.scss')
-        .pipe(compass({
-            dist: 'dist/css'
-            sass: 'assets/scss',
+    return gulp.src('assets/styles/**/*.scss')
+        .pipe($.compass({
+            css: 'dist/css',
+            sass: 'assets/styles',
             image: 'assets/images'
       	}))
       	.pipe($.autoprefixer('last 2 versions', 'ie 8'))
+        .pipe(minifyCSS())
       	.pipe(gulp.dest('dist/css'))
+        .pipe(browserSync.reload({stream:true}))
   	 	.pipe($.size({title: 'compass'}));
 });
 
 // Scan Your HTML For Assets & Optimize Them
 gulp.task('html', function () {
     return gulp.src('assets/html/**/*.html')
-        .pipe($.useref.assets({searchPath: 'assets'}))
-        // Concatenate And Minify JavaScript
-        .pipe($.if('*.js', $.uglify()))
-        // Concatenate And Minify Styles
-        .pipe($.if('*.css', $.csso()))
-        // Remove Any Unused CSS
-        .pipe($.useref.restore())
-        .pipe($.useref())
-        // Update Production Style Guide Paths
-        .pipe($.replace('css/main.css'))
         // Minify Any HTML
         .pipe($.minifyHtml())
         // Output Files
-        .pipe(gulp.dest('/dest'))
+        .pipe(gulp.dest('dist'))
+        .pipe(browserSync.reload({stream:true}))
         .pipe($.size({title: 'html'}));
 });
 
 // Clean Output Directory
 gulp.task('clean', function (cb) {
-    rimraf('dist', rimraf.bind({}, '.tmp', cb));
+    rimraf('dist', cb);
 });
 
 // Watch Files For Changes & Reload
 gulp.task('serve', function () {
     browserSync.init(null, {
         server: {
-            baseDir: './'
+            baseDir: 'dist'
         },
         notify: false
     });
 
-    gulp.watch(['assets/html/**/*.html'], reload);
+    gulp.watch(['assets/html/**/*.html'], ['html']);
     gulp.watch(['assets/styles/**/*.scss'], ['compass']);
     gulp.watch(['assets/scripts/*.js'], ['js']);
     gulp.watch(['assets/images/**/*'], ['images']);
@@ -103,14 +93,14 @@ gulp.task('serve', function () {
 
 // Build Production Files
 gulp.task('build', function (cb) {
-    runSequence('compass', ['js', 'html', 'images'], cb);
-    // runSequence('compass', ['js', 'images'], cb);
+    runSequence('compass', 'js', 'images', 'html', cb);
 });
 
 // Default Task
 gulp.task('default', ['clean'], function (cb) {
     gulp.start('build', cb);
-    gulp.watch(['.tmp/styles/**/*.css'], reload);
+    gulp.watch(['assets/html/**/*.html'], ['html']);
+    gulp.watch(['assets/styles/**/*.scss'], ['compass']);
     gulp.watch(['assets/scripts/*.js'], ['js']);
     gulp.watch(['assets/images/**/*'], ['images']);
 });
