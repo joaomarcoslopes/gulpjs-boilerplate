@@ -26,12 +26,12 @@ gulp.task('js:minify', function () {
     return gulp.src('assets/scripts/*.js')
         .pipe(concat('main.min.js'))
         .pipe(uglify())
-        .pipe(gulp.dest('scripts'));
+        .pipe(gulp.dest('dest/scripts'));
 })
 //Copy vendors
 gulp.task('js:vendor', function () {
     return gulp.src('assets/scripts/vendor/*')
-        .pipe(gulp.dest('scripts/vendor'));
+        .pipe(gulp.dest('dest/scripts/vendor'));
 })
 
 gulp.task('js', ['js:lint', 'js:minify', 'js:minify', 'js:vendor']);
@@ -43,7 +43,7 @@ gulp.task('images', function () {
             progressive: true,
             interlaced: true
         })))
-        .pipe(gulp.dest('images'))
+        .pipe(gulp.dest('dest/images'))
         .pipe(reload({stream: true, once: true}))
         .pipe($.size({title: 'images'}));
 });
@@ -52,12 +52,11 @@ gulp.task('images', function () {
 gulp.task('compass', function(){
     return gulp.src('./assets/scss/*.scss')
         .pipe(compass({
-            css: './css',
             sass: 'assets/scss',
             image: 'assets/images'
       	}))
       	.pipe($.autoprefixer('last 2 versions', 'ie 8'))
-      	.pipe(gulp.dest('css'))
+      	.pipe(gulp.dest('dest/css'))
   	 	.pipe($.size({title: 'compass'}));
 });
 
